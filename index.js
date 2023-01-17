@@ -7,13 +7,6 @@ const Order = require('./models/Order')
 const notFound = require('./middleware/notFound')
 const errorsHandle = require('./middleware/errorsHandle')
 const cors = require('cors')
-const https = require('https')
-const fs = require('fs')
-
-const options = {
-  key: fs.readFileSync('./server/server.key'),
-  cert: fs.readFileSync('./server/server.crt')
-};
 
 app.use(cors())
 app.use(express.json())
@@ -133,10 +126,9 @@ app.put('/api/orders/:id', (request, response, next) => {
 app.use(notFound)
 app.use(errorsHandle)
 
-const server = https.createServer(options,app)
 const PORT = process.env.PORT || 3001
 
-server.listen(PORT, function(){
+app.listen(PORT, function(){
   console.log("Server listening on: https://localhost:" + PORT);
 });
 
