@@ -6,10 +6,13 @@ const app = express()
 const Order = require('./models/Order')
 const notFound = require('./middleware/notFound')
 const errorsHandle = require('./middleware/errorsHandle')
+const restrictApi = require('./middleware/restrictApi')
 const cors = require('cors')
 
 app.use(cors())
 app.use(express.json())
+
+app.use(restrictApi)
 
 app.get('/api/orders', (request, response, next) => {
   Order.find({}).then(orders => {
@@ -129,10 +132,5 @@ app.use(errorsHandle)
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, function(){
-  console.log("Server listening on: https://localhost:" + PORT);
+  console.log("Server running on port: " + PORT);
 });
-
-//const PORT = process.env.PORT || 3001
-// app.listen(PORT, () =>{
-//   console.log(`Server running on port ${PORT}`)
-// })
