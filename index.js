@@ -6,7 +6,7 @@ const app = express()
 const Order = require('./models/Order')
 const notFound = require('./middleware/notFound')
 const errorsHandle = require('./middleware/errorsHandle')
-const restrictApi = require('./middleware/restrictApi')
+//const restrictApi = require('./middleware/restrictApi')
 const cors = require('cors')
 const jwt = require('express-jwt')
 const jwksRsa = require('jwks-rsa')
@@ -14,7 +14,7 @@ const jwksRsa = require('jwks-rsa')
 app.use(cors())
 app.use(express.json())
 
-app.use(restrictApi)
+//app.use(restrictApi)
 
 app.get('/api/orders', (request, response, next) => {
   Order.find({}).then(orders => {
