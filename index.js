@@ -8,6 +8,8 @@ const notFound = require('./middleware/notFound')
 const errorsHandle = require('./middleware/errorsHandle')
 const restrictApi = require('./middleware/restrictApi')
 const cors = require('cors')
+const jwt = require('express-jwt')
+const jwksRsa = require('jwks-rsa')
 
 app.use(cors())
 app.use(express.json())
@@ -21,7 +23,6 @@ app.get('/api/orders', (request, response, next) => {
     console.log(err)
   })
 })
-
 
 app.get('/api/orders/:id', (request, response, next) => {
   const id = request.params.id
@@ -38,17 +39,21 @@ app.get('/api/orders/:id', (request, response, next) => {
   })
 })
 
-app.delete('/api/orders/:id', (request, response, next) => {
-  const {id} = request.params
-  Order.findByIdAndDelete(id).then(result => {
-    if (result) {
-      response.status(204).end()
-      console.log("Order deleted");
-    } else {
-      response.status(404).send({error: 'El id especificado no existe'})
-    }
-  }).catch(err => next(err))
-})
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://dev-78wdkjwe.us.auth0.com/.well-known/jwks.json`
+  }),
+
+  // Validate the audience and the issuer.
+  audience: 'https://taller-api',
+  issuer: `https://dev-78wdkjwe.us.auth0.com/`,
+  algorithms: ['RS256']
+});
+
+app.use(checkJwt)
 
 app.post('/api/orders', (request, response, next) => {
   const order = request.body
@@ -85,6 +90,22 @@ app.post('/api/orders', (request, response, next) => {
     response.json(savedOrder)
   })
 })
+
+app.use(checkJwt)
+
+app.delete('/api/orders/:id', (request, response, next) => {
+  const {id} = request.params
+  Order.findByIdAndDelete(id).then(result => {
+    if (result) {
+      response.status(204).end()
+      console.log("Order deleted");
+    } else {
+      response.status(404).send({error: 'El id especificado no existe'})
+    }
+  }).catch(err => next(err))
+})
+
+app.use(checkJwt)
 
 app.put('/api/orders/:id', (request, response, next) => {
   const {id} = request.params
